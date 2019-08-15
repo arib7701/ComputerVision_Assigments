@@ -1,0 +1,138 @@
+<header id="jumbo" class="grid">
+  <div class="backimg"></div>
+  <div class="content-jumbo">
+    <h1>Gaussian & Laplacian Pyramids</h1>
+    <p>Coding Assignment #1 - Spring 2018</p>
+    <a class="btn" [routerLink]="['/']">Go Back</a>
+  </div>
+</header>
+<div class="container">
+  <section class="row">
+    <div class="col-md-6 col-sm-12">
+      <h3>Gaussian Pyramids Concepts:</h3>
+      <p>A pyramid is a serie of images formed using some transformation on each image, over and over until a certain number of levels is created.
+      <br/>Gaussian Pyramids are called low pass pyramid since we are removing the high frequencies and only keeping the low ones in the image.
+      A Gaussian Pyramid is obtained by applying two operations on an initial image: blurring and downsampling.</p>
+    </div>
+    <div class="gaussianEx col-md-6 col-sm-12">
+      <img src="../../../assets/images/pyramids/lena_gaussian_1.jpg" alt="lenaOriginal">
+      <img src="../../../assets/images/pyramids/lena_gaussian_2.jpg" alt="lenaLevel1">
+      <img src="../../../assets/images/pyramids/lena_gaussian_3.jpg" alt="lenaLevel2">
+      <img src="../../../assets/images/pyramids/lena_gaussian_4.jpg" alt="lenaLevel3">
+    </div>
+  </section>
+  <hr>
+  <section class="row">
+    <div class="concept col-md-4 col-sm-12">
+      <h4>Step 1: Blurring (Convolution)</h4>
+      <p>To avoid aliasing during the downsampling process, we need to blur the image first (i.e smoothing each pixel) using a Gaussian Kernel. 
+        <br/><br/>
+        We used a kernel of size 5x5, and with the same coefficients as provided by OpenCV built-in function 
+        pyrDown. 
+        <br/><br/>
+        Because of the symmetry, we can separate the kernel in two vectors, one for rows, one for columns with the following coefficients 1/16, 4/15, 6/16, 4/16, 1/16.
+        <br/><br/>
+        After padding the image (to make sure our blurred image has exactly the same size as the original),  we convolve (i.e. matrix element-wise multiplication followed by a sum) 
+        using a 5x5 kernel. 
+        <br/><br/>
+        To avoid a high computational time, we can use the separable property of our symmetric kernel,
+        by convolving only the rows of the image then convolving on the columns of the previous result to obtain our
+        blurred image.
+    </div>
+    <div class="blurringEx col-md-8 col-sm-12">
+      <img src="../../../assets/images/pyramids/lena_gaussian_1.jpg" alt="lenaOriginal">
+      <img src="../../../assets/images/pyramids/lena_gaussian_2.jpg" alt="lenaLevel1">
+      <img src="../../../assets/images/pyramids/applyGaussianFct.png" alt="applyGaussianFct">
+      <img src="../../../assets/images/pyramids/convolutionProcess.png" alt="convolutionProcess">
+    </div>
+  </section>
+  <hr>
+  <section class="row">
+    <div class="concept col-md-4 col-sm-12">
+      <h4>Step 2: Downsampling</h4>
+      <p>Downsample consists in dividing by four the size of the image. Its height and width will be reduced by a factor 
+        of two. To do that, our implementation just removes even rows and columns. 
+    </div>
+    <div class="downsamplingEx col-md-8 col-sm-12">
+      <img id="downimg1" src="../../../assets/images/pyramids/lena_gaussian_2.jpg" alt="lenaOriginal">
+      <img id="downimg2" src="../../../assets/images/pyramids/lena_gaussian_2.jpg" alt="lenaLevel1">
+      <img src="../../../assets/images/pyramids/downsampleFct.png" alt="downsampleFct">
+    </div>
+  </section>
+  <hr  class="style1">
+  <section class="row">
+    <div class="col-md-6 col-sm-12">
+      <h3>Laplacian Pyramids Concepts:</h3>
+      <p>Laplacian pyramids are based on Gaussian level. We will be applying the same principle as for a Gaussian but 
+        reverse and use our Gaussian image to get the difference. First, our image will be up-sampled and then the 
+        same kernel with be used. Once we get that result, we will compute the difference between the Gaussian level 
+        and our result to get the Laplacian image.</p>
+    </div>
+    <div class="laplacianEx col-md-6 col-sm-12">
+      <img src="../../../assets/images/pyramids/lena_laplacian_1.jpg" alt="lenaLevel1">
+      <img src="../../../assets/images/pyramids/lena_laplacian_2.jpg" alt="lenaLevel2">
+      <img src="../../../assets/images/pyramids/lena_laplacian_3.jpg" alt="lenaLevel3">
+    </div>
+  </section>
+  <hr>
+  <section class="row">
+    <div class="concept col-md-4 col-sm-12">
+      <h4>Step 1: Upsampling</h4>
+      <p>The first step needed is to up-sample our image. Our image is the lower level of the Gaussian Pyramid. 
+        Up-sample means we are going to double the size of the image (i.e. multiply its rows and columns by 2). 
+        <br/><br/>
+        Before doing so, our implementation first makes sure the final size will match the size of the next Gaussian 
+        level. Next, to double our image size, we created new even rows and columns and fill them with zero.</p>
+    </div>
+    <div class="upsamplingEx col-md-8 col-sm-12">
+      <img id="upimg1" src="../../../assets/images/pyramids/lena_gaussian_2.jpg" alt="lenaOriginal">
+      <img id="upimg2" src="../../../assets/images/pyramids/lena_gaussian_1.jpg" alt="lenaLevel1">
+      <img src="../../../assets/images/pyramids/upsampleFct.png" alt="upsampleFct">
+    </div>
+  </section>
+  <hr>
+  <section class="row">
+    <div class="concept col-md-4 col-sm-12">
+      <h4>Step 2: Difference of Gaussians</h4>
+      <p>The second part requires applying the same kernel on our up-sample result which will allow 
+        extrapolating value to our zero pixels. We use the same method as before to apply the kernel i.e. 
+        convolution. We also need to multiply each pixel value by 4 to balance our coefficients.
+        <br/><br/>
+        Finally we uses the next level Gaussian image (which should have now the same size as our 
+          up-sample, blurred image) to get the Laplacian image. For that, we do the difference between the 
+          Gaussian and get our result. 
+    </div>
+    <div class="differenceEx col-md-8 col-sm-12">
+      <img src="../../../assets/images/pyramids/lena_gaussian_1.jpg" alt="lenaOriginal">
+      <img src="../../../assets/images/pyramids/lena_gaussian_2.jpg" alt="lenaLevel1">
+      <img src="../../../assets/images/pyramids/lena_laplacian_1.jpg" alt="lenaLevel1">
+      <img id="diffcode" src="../../../assets/images/pyramids/downsampleFct.png" alt="downsampleFct">
+    </div>
+  </section>
+  <hr class="style1">
+  <section class="row">
+    <h4 class="col-md-12 col-sm-12">Others Examples</h4>
+    <div class="gaussianEx col-md-12 col-sm-12">
+      <div class="col-md-12 col-sm-12">
+        <img src="../../../assets/images/pyramids/peppers_gaussian_1.jpg" alt="peppersOriginal">
+        <img src="../../../assets/images/pyramids/peppers_gaussian_2.jpg" alt="peppersLevel1">
+        <img src="../../../assets/images/pyramids/peppers_gaussian_3.jpg" alt="peppersLevel2">
+        <img src="../../../assets/images/pyramids/peppers_gaussian_4.jpg" alt="peppersLevel3">
+        <img src="../../../assets/images/pyramids/peppers_laplacian_1.jpg" alt="peppersOriginal">
+        <img src="../../../assets/images/pyramids/peppers_laplacian_2.jpg" alt="lpeppersLevel1">
+        <img src="../../../assets/images/pyramids/peppers_laplacian_3.jpg" alt="peppersLevel2">
+      </div>
+    </div>
+    <div class="laplacianEx col-md-12 col-sm-12">
+      <div class="col-md-12 col-sm-12">
+        <img src="../../../assets/images/pyramids/pilou_gaussian_1.jpg" alt="peppersOriginal">
+        <img src="../../../assets/images/pyramids/pilou_gaussian_2.jpg" alt="lpeppersLevel1">
+        <img src="../../../assets/images/pyramids/pilou_gaussian_3.jpg" alt="peppersLevel2">
+        <img src="../../../assets/images/pyramids/pilou_gaussian_4.jpg" alt="peppersLevel3">
+        <img src="../../../assets/images/pyramids/pilou_laplacian_1.jpg" alt="peppersOriginal">
+        <img src="../../../assets/images/pyramids/pilou_laplacian_2.jpg" alt="lpeppersLevel1">
+        <img src="../../../assets/images/pyramids/pilou_laplacian_3.jpg" alt="peppersLevel2">
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,218 @@
+<header id="jumbo" class="grid">
+  <div class="backimg"></div>
+  <div class="content-jumbo">
+    <h1>Circle Detection using Hough Transform & RANSAC methods</h1>
+    <p>Coding Assignment #2 - Spring 2018</p>
+    <a class="btn" [routerLink]="['/']">Go Back</a>
+  </div>
+</header>
+<div class="container">
+  <section class="row">
+      <div class="col-md-6 col-sm-12">
+        <h4>Preliminary Step: Canny Edges Detection:</h4>
+        <p>To do circles detection, we first need to obtain the edges in the images. For that we used the Canny Edge Detector of OpenCV – Canny().
+            <br><br>The Canny Edge Detector works in several steps:</p>
+            <ul class="stepsList">
+              <li>remove noise in the image by applying a 5x5 Gaussian filter</li>
+              <li>computes the intensity gradient of the image using a Sobel kernel</li>
+              <li>remove all pixels that are not an edge using a local maximum and Hysteresis thresholding (i.e.the use of two threshold values to take a decision)</li>
+            </ul>   
+      </div>
+      <div class="canny col-md-6 col-sm-12">
+        <img src="../../../assets/images/circles/money2.jpg" alt="money2">
+        <img src="../../../assets/images/circles/money2_edges.jpg" alt="money2_edges">
+      </div>
+  </section>
+  <hr  class="style1">
+  <section class="row">
+    <div class="col-md-6 col-sm-12">
+      <h3>Hough Transform Concepts:</h3>
+      <p>The Hough Transform method is based on a voting system. The algorithm is divided into three parts which are 
+        repeated for each possible radius:</p>
+        <ul class="stepsList">
+          <li>Computing the votes for each pixel in the real image space</li>
+          <li>Find the maximum peaks</li>
+          <li>Only keep the best circles to avoid duplicates</li>
+        </ul>
+        <p class="stepsList">Parameters:</p>
+          <ul class="stepsList">  
+            <li> radiusStart & radiusEnd</li>
+            <li> pixelInterval (by default = 15)</li>
+            <li> numberPeaks (by default = 10)</li>
+            <li> clearInterval (by default = 4)</li>
+            <li> voteThreshold (by default = 0.8*maxVote or at least 100)</li>
+          </ul>
+    </div>
+    <div class="col-md-6 col-sm-12">
+      <img src="../../../assets/images/circles/money2_HoughTransform.jpg" alt="money2_HoughTransform">
+    </div>
+  </section>
+  <hr>
+  <section class="row">
+    <div class="concept col-md-4 col-sm-12">
+      <h4>Step 1: Voting</h4>
+      <p>Using a given radius, each edge point is going to vote for all the points on the circle which use the radius
+          and the edge point as a circle center. Thus, for one edge point, we loop through all the angles possible 
+          (from 0 to 360 degree) to form the circle. This process is repeated for each edge point.</p>
+    </div>
+    <div class="concept col-md-4 col-sm-12">
+      <h4>Step 2: Find Maximum Peaks</h4>
+      <p>The next step is to find the points which 
+        accumulates the most votes. All the points within a same circle in real image space, have all voted for a 
+        common point in Hough Space which represent 
+        the center of the circle in the real image space. For a specific radius, 10 highest peaks 
+        are kept if their vote are higher than a given 
+        threshold. Once a point has been identified, we clear out the 
+        votes of the closest neighborhood to avoid duplicates circles to be counted.</p>
+    </div>
+    <div class="concept col-md-4 col-sm-12">
+        <h4>Step 3: Keep Best Circles</h4>
+        <p> The last step removes duplicates and only keep the best circles. 
+            If two saved circles share the same center point (plus or minus a threshold of 15), we compare their respective 
+            votes and only keep the one with the highest vote. 
+            If the circles share the same center, there is still the possibility to have a correct circle within another 
+            correct circle. The function check if the first radius is twice as big as the other 
+            circle radius (the threshold 2 has been chosen but can be reduced or raised). If that the case, the two circles
+            will be kept.</p>
+      </div>
+    <div class="fctImg col-md-4 col-sm-12">
+      <img src="../../../assets/images/circles/hough_VoteFct.png" alt="hough_VoteFct">
+    </div>
+    <div class="fctImg col-md-4 col-sm-12">
+      <img src="../../../assets/images/circles/hough_MaxPeak.png" alt="hough_MaxPeak">
+    </div>
+    <div class="fctImg col-md-4 col-sm-12">
+      <img src="../../../assets/images/circles/hough_checkCircles.png" alt="hough_checkCircles">
+    </div>
+  </section>
+  <hr  class="style1">
+  <section class="row">
+    <div class="col-md-6 col-sm-12">
+      <h3>RANSAC Concepts:</h3>
+      <p>The RANSAC method use geometry and randomness to find the circles in the images. 
+        To define a circle in geometry, you need to have three points on the circumference of that circle 
+        (P1, P2, P3 on the image below – A, B, C in the code). </p>
+        <p class="stepsList">Parameters:</p>
+          <ul class="stepsList">  
+            <li>numberIterations</li>
+            <li>radiusThreshold (by default = 3)</li>
+          </ul>
+    </div>
+    <div class="col-md-6 col-sm-12">
+      <img src="../../../assets/images/circles/money2_RANSAC.jpg" alt="money2_RANSAC">
+    </div>
+  </section>
+  <hr>
+  <section class="row">
+      <div class="concept col-md-4 col-sm-12">
+          <h4>Step 1: Findind Equations</h4>
+          <p>Finding equations from the line separating those points (P1P2, P1P3), can give us their midpoints, 
+            slopes and intercepts (using simple geometric formulas). From that, we need to obtain the two perpendiculars 
+            equations (slopes and intercepts) going through the midpoints. Finding the intersection of the two 
+            perpendiculars will give us 
+            the coordinates of the center of the circle. By deduction, we can easily find the radius, by taking the 
+            distance between any of the previous point and the newly found center (see illustration for clearer explanation).</p>
+        </div>
+        <div class="concept col-md-4 col-sm-12">
+          <h4>Step 2: Find Edge Points on Circle</h4>
+          <p>Once the circle is found, we need to loop through all the edges points detected to count how many of 
+            them are located on the circumference of the circle. If the number of points that fit is higher than the 
+            circumference, then we consider that circle as a correct one, and we add it to our list of best circles. 
+            We also need to remove all the points on that circles, to avoid any duplicates for the next iterations.</p>
+        </div>
+        <div class="concept col-md-4 col-sm-12">
+            <h4>Step 3: Keep Best Circles</h4>
+            <p>In the code, the three originals points are chosen randomly. The RANSAC function will then iterates several 
+              times until all the circles have been found. The number of iterations will depend of the size of the images, 
+              and mostly of the number of edge points detected earlier. The more edges points, the more iterations will be needed. 
+              For example, in example 3, the two pens produce a good number of edge points. The algorithm has the good probability 
+              to have at least one point randomly taken from the pens, instead of three points from the same circle. 
+              Thus, in that example, we need 20,000 iterations to find all the circle in the image.</p>
+          </div>
+        <div class="fctImg col-md-4 col-sm-12">
+          <img src="../../../assets/images/circles/ransac_Geometry.png" alt="ransac_Geometry">
+        </div>
+        <div class="fctImg col-md-4 col-sm-12">
+          <img src="../../../assets/images/circles/ransac_Equation.png" alt="ransac_Equation">
+          <img src="../../../assets/images/circles/ransac_Equation2.png" alt="ransac_Equation2">
+        </div>
+        <div class="fctImg col-md-4 col-sm-12">
+          <img src="../../../assets/images/circles/ransac_EdgePts.png" alt="ransac_EdgePts">
+        </div>
+  </section>
+  <hr  class="style1">
+  <section class="row">
+      <div class="col-md-6 col-sm-12">
+        <h4>Final Step: Drawing Circle on Image:</h4>
+        <p>To do circles detection, we first need to obtain the edges in the images. For that we used the Canny Edge Detector of OpenCV – Canny().
+            <br><br>The Canny Edge Detector works in several steps:</p>  
+      </div>
+      <div class="col-md-6 col-sm-12">
+        <img src="../../../assets/images/circles/drawCircles.png" alt="drawCircles">
+      </div>
+  </section>
+  <hr class="style1">
+  <section class="row examples">
+    <h4 class="col-md-12 col-sm-12">Others Examples (Hough vs RANSAC)</h4>
+    <div class="col-md-12">
+      <div class="col-md-12 col-sm-12">
+          <img src="../../../assets/images/circles/circlesss.jpg" alt="circle">
+          <img src="../../../assets/images/circles/circlesss_edges.jpg" alt="circlesss_edges">
+          <img src="../../../assets/images/circles/circlesss_HoughTransform.jpg" alt="circlesss_HoughTransform">
+          <img src="../../../assets/images/circles/circlesss_RANSAC.jpg" alt="circlesss_RANSAC">
+      </div>
+      <div class="col-md-12 col-sm-12">
+          <img src="../../../assets/images/circles/money.jpg" alt="money">
+          <img src="../../../assets/images/circles/money_edges.jpg" alt="money_edges">
+          <img src="../../../assets/images/circles/money_HoughTransform.jpg" alt="money_HoughTransform">
+          <img src="../../../assets/images/circles/money_RANSAC.jpg" alt="money_RANSAC">
+      </div>
+      <div class="col-md-12 col-sm-12">
+          <img src="../../../assets/images/circles/eye.jpg" alt="eye">
+          <img src="../../../assets/images/circles/eye_edges.jpg" alt="eye_edges">
+          <img src="../../../assets/images/circles/eye_HoughTransform.jpg" alt="eye_HoughTransform">
+          <img src="../../../assets/images/circles/eye_RANSAC.jpg" alt="eye_RANSAC">
+      </div>
+      <div class="col-md-12 col-sm-12">
+          <img src="../../../assets/images/circles/cd.jpg" alt="cd">
+          <img src="../../../assets/images/circles/cd_edges.jpg" alt="cd_edges">
+          <img src="../../../assets/images/circles/cd_HoughTransform.jpg" alt="cd_HoughTransform">
+          <img src="../../../assets/images/circles/cd_RANSAC.jpg" alt="cd_RANSAC">
+      </div>
+    </div>
+  </section>
+  <hr class="style1">
+  <section class="row">
+      <div class="col-md-6 col-sm-12">
+          <img src="../../../assets/images/circles/comparison.png" alt="comparison">
+        </div>
+      <div class="col-md-6 col-sm-12">
+        <h4>Comparisons:</h4>
+        <p>The two methods implemented give back mostly the same results. 
+          However, their implementation differs a lot, and need different parameters to be decided by the user to get 
+          the best results. As well, the size of the image and the content of the image matters a lot in term of 
+          computational time and results. <br><br>
+          The first thing we can observe is the computational time difference between the 
+          two methods. Globally the RANSAC method is much faster than the Hough Transform. For the same image, and same 
+          edges, the RANSAC method can be as hundred time faster than the other method.<br><br>
+          However, the RANSAC method reaches nearly the same computational time as the Hough Transform if there is 
+          a lot of edges pixel. Since RANSAC randomly picks three edge points to generate a circle, the probability that 
+          a non circle edge pixel is picked is quite important. Thus, the algorithm needs a lot of iterations to find all the 
+          circles. <br><br>
+          </p>
+      </div>
+      <div class="col-xs-12">
+          <p>In the case of Hough Transform, the computational time will be increased by the number of radius to explore. 
+          Thus, the user needs to pick the smallest range of radius possible to reduce the computational time to a minimum.
+          In the case of example 5 (Eye), where the edge pixels are not as well defined and clear as the other examples - 
+          we can see in the output images that the Hough 
+          Transform method reach a better result than the RANSAC method. Once again, the detection of the edge pixels is 
+          the cause of the different results. RANSAC will chose a circle if enough edge points are found on the 
+          circumference of the circle. Since in that image, the top part of the eye in not clearly defined by edges, 
+          the RANSAC algorithm has more difficulties to find the best circle. However, the Hough Transform method, 
+          by using votes, will keep the circle with the maximum votes. Thus, even if the eye edges are not well defined, 
+          it’s still the circle with the highest votes and will be kept by the algorithm.</p>
+      </div>
+     
+    </section>
+</div>
