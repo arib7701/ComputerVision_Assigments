@@ -2,7 +2,7 @@
 
 Presentation website for computer vision assigments 2018, code and results explanation.
 
-Webiste available at : https://computervision-projects.firebaseapp.com/
+Website available at : https://computervision-projects.firebaseapp.com/
 
 Technical Stack :
 - Data hard coded inside html
