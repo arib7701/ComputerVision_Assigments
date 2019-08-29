@@ -81,6 +81,20 @@ p {
   padding-bottom: 5px;
 }
 
+.resultsImg img {
+  display: inline-block;
+  width: 70% !important;
+  margin: auto;
+  padding-bottom: 5px;
+}
+
+.examplesImg img {
+  display: inline-block;
+  width: 60% !important;
+  margin: auto;
+  padding-bottom: 5px;
+}
+
 ol {
   text-align: left;
   line-height: 1.6em;
@@ -88,6 +102,10 @@ ol {
 
 .concept {
   text-align: justify;
+}
+
+hr.style0 {
+  border-top: 1px double #8c8b8b;
 }
 
 hr.style1 {
