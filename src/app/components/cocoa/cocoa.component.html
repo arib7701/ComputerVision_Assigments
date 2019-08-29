@@ -75,7 +75,7 @@
         <a href="http://www.image-net.org/" target="_blank">ImageNet database</a
         >. <br /><br />
         <li>
-          ImageNet <br />
+          IMAGENET <br />
           After a bit of research, it appeared that the ImageNet Database had
           around 700 of classified cocoa pods. However, there were barely any
           sick or diseased pods in the associated folder (and if any, they were
@@ -83,7 +83,7 @@
         </li>
         <br />
         <li>
-          Google Image / Flicker Scrapping <br />
+          GOOGLE IMAGE / FLICKER SCRAPPING <br />
           We used some python code to scrapped images from Google Images and
           Flicker to collect the rest of the dataset. Many images collected were
           irrelevant or duplicates and a lot of cleaning had to be done in order
@@ -124,7 +124,7 @@
       <h4>Challenges</h4>
       <p style="text-align: left">
         <li>
-          Diseases diversity <br />The first difficulty is the numerous types of
+          DISEASES DIVERSITY <br />The first difficulty is the numerous types of
           diseases which can affect cocoa pods and cocoa tree: Black Pod,
           Witches Broom, Frosty Pod Rot, Swollen Shoot Virus, etc. Images found
           of sick pods or sick trees have not been well documented and without
@@ -140,7 +140,7 @@
         </li>
         <br />
         <li>
-          Small Datasets <br />Subsequently, due to a rather quite small
+          SMALL DATASETS <br />Subsequently, due to a rather quite small
           dataset, our Deep Learning model has a very high probability of
           overfitting the results to our training set. Fortunately, techniques
           exist to our advantage (see methodology) to avoid or at least reduce
@@ -148,7 +148,7 @@
         </li>
         <br />
         <li>
-          Smartphone application<br />Lastly, the ultimate challenge regards the
+          SMARTPHONE APPLICATION<br />Lastly, the ultimate challenge regards the
           final use of the model via smartphone. The end goal is to produce a
           smartphone application which can correctly classifies healthy and sick
           pods. The use of smartphones brings two limitations to the model:
@@ -167,47 +167,228 @@
   </section>
   <hr class="style1" />
   <section class="row ">
-    <div class="col-md-7 col-sm-12 ">
-      <h4>Normalized Cut Method</h4>
-      <p>
-        An image can be seen as a fully connected graph, where each pixel is a
-        node, which is linked to each other pixel by edges (weighted)
-        representing the similarity between a pair. This graph can be split into
-        different groups by minimizing the value of the cut i.e. cutting
-        (removing) the edges with the minimum weight (i.e. minimum similarity).
-        Normalized Cut computed the cost as a fraction of the total edge
-        connections to all the nodes in the graph. Finding the optimal partition
-        is an NP-complete problem, but an approximate solution was found using
-        the eigenvalues and eigenvectors.
-        <br />
-        <br />
-        First we compute the symmetric weight matrix W which represents the
-        similarity measure between each pair of pixel. We use two features: the
-        spatial location and the RGB color value of a pixel. The similarity is
-        measured using the squared Euclidean distance. Next, W is transformed
-        into a diagonal matrix D. Then we find the eigenvalues of D minus W.
-        Using the second smallest eigenvalues, we use its associated
-        eigenvectors to solve the cut and bi-partition the graph. We then
-        iterate using the same steps and recursion until we reach a minimum area
-        for each partition. Once all the partitions are created, we have to
-        assemble them again and apply the mean color obtained to each specific
-        partition.
-        <br />
-        <br />
-        Normalized Cut implementation by Naotoshi Seo, can be found in Matlab
-        <a
-          href="http://note.sonots.com/SciSoftware/NcutImageSegmentation.html"
-          target="_blank"
-          >here</a
-        >.
+    <div class="col-md-12 col-sm-12 ">
+      <h4>Methodology</h4>
+      <br />
+      <h5 style="text-align: left">CONVOLUTIONAL NEURAL NETWORK</h5>
+      <p style="text-align: left">
+        Convolutional Neural Networks (ConvNets or CNNs) are a category of
+        Neural Networks that have been very effective in image recognition and
+        classification. ConvNets have been successful in identifying faces,
+        objects and traffic signs. ConvNets derive their name from the
+        “convolution” operator. The primary goal of a ConvNet is to extract
+        features from the input image using convolution which preserves the
+        spatial relationship between pixels by learning image features from
+        small squares of input data.
       </p>
     </div>
-
-    <div class="col-md-5 col-sm-12 ">
+    <div class="col-md-12 col-sm-12 ">
       <img
         id="downimg1 "
-        src="../../../assets/images/segmentation/peppers200_NCut.jpg "
-        alt="peppersNCut "
+        src="../../../assets/images/cocoa/CNN.png"
+        alt="CNN "
+      />
+    </div>
+    <div class="col-md-12 col-sm-12 ">
+      <p style="text-align: left">
+        A ConvNet is mainly composed of four main operations:
+        <li>Convolution</li>
+        <li>Non-Linearity (ReLU)</li>
+        <li>Pooling</li>
+        <li>Classification i.e. Fully Connected</li>
+        <br />
+        For each layer in a convolution, a filter slides over the input image to
+        produce a feature map. Thus, the convolution operation captures the
+        local dependencies in the original image. A CNN learns the values of
+        many different filters on its own during the training process. However,
+        the number of filters, the filter size and type, and the architecture of
+        the network need to be chosen before training. The more number of
+        filters we have, the more image features get extracted and the better
+        the network becomes at recognizing patterns in unseen images.
+        <br /><br />
+        The next operation is called ReLU for Rectified Linear Unit. It’s a
+        non-linear, element wise operation which replaces all negative pixel
+        values by zero, and keep the positives values as is. Other non-linear
+        functions such as tanh or sigmoid can also be used instead of ReLU, but
+        ReLU has been found to perform better in most situations.
+        <br /><br />
+        The third operation is pooling (also called downsampling). It reduces
+        the dimensionality of each feature map but retains the most important
+        information. Different type of pooling can be used, like Max, Average,
+        Sum, etc. but Max Pooling has been shown to work the best. Pooling have
+        several uses. First, it makes the input representations smaller and more
+        manageable. Second, it reduces the number of parameters and computations
+        in the network, thus reducing overfitting. Finally, it makes the network
+        invariant to small transformations, distortions and translations in the
+        input image.
+        <br /><br />
+        The last operation is the Fully Connected Layer. It uses a softmax
+        activation function in the output later and has as many neurons as in
+        the previous layer. This fully connected layer use high level features
+        extracted by the previous steps (operations) to classify the input image
+        into on the category or classes defined by the training set. The overall
+        training process of the ConvNet may be summarized as follow:
+        <br /><br />
+        <li>
+          <b>STEP 1</b>: Initialize all filters and parameters / weights with
+          random values
+        </li>
+        <br />
+        <li>
+          <b>STEP 2</b>: The network takes a training image as input, goes
+          through the forward propagation step (convolution, ReLU, pooling
+          operations and forward propagation in the Fully Connected layer) and
+          finds the output probabilities for each class.
+        </li>
+        <br />
+        <li>
+          <b>STEP 3</b>: Calculate the total error at the output layer. Total
+          Error = ∑ ½ (target probability – output probability) ²
+        </li>
+        <br />
+        <li>
+          <b>STEP 4</b>: Use Backpropagation to calculate the gradients of the
+          error with respect to all weights in the network and use gradient
+          descent to update all filter values / weights and parameter values to
+          minimize the output error. The weights are adjusted in proportion to
+          their contribution to the total error. This means that the network has
+          learnt to classify this particular image correctly by adjusting its
+          weights / filters such that the output error is reduced.
+        </li>
+        <br />
+        <li>
+          <b>STEP 5</b>: Repeat steps 2-4 with all images in the training set.
+        </li>
+        <br />
+        The above steps train the ConvNet i.e. all the weights and parameters of
+        the ConvNet have been optimized to correctly classify images from the
+        training set. Thus, when a new (unseen) image is input into the ConvNet,
+        the network would go through the forward propagation step and output a
+        probability for each. If the training set was large enough, the network
+        will generalize well to new images and classify them into correct
+        categories.
+      </p>
+    </div>
+  </section>
+  <hr />
+  <section class="row">
+    <div class="col-md-12 col-sm-12 ">
+      <h5 style="text-align: left">VGG 16</h5>
+      <p style="text-align: left">
+        VGG is a convolutional neural network model proposed by K. Simonyan and
+        A. Zisserman from the University of Oxford in the paper “Very Deep
+        Convolutional Networks for Large-Scale Image Recognition”. VGG-16 was
+        trained on more than a million images and can classify images into 1000
+        object categories, for example: keyboard, mouse, pencil, and many
+        animals. As a result, the model has learned rich feature representations
+        for a wide range of images. On the ImageNet dataset, which is a dataset
+        of over 14 million images belonging to 1000 classes, VGG16 achieves a
+        92.7% test accuracy.
+        <br /><br />
+        The VGG16 architecture is composed of 16 hidden layers (convolution with
+        ReLU and max pooling), 3 fully connected layers with ReLU and final
+        softmax output layer. This model is going to be the base of our project
+        via transfer learning.
+      </p>
+    </div>
+    <div class="col-md-10 col-sm-12 " style="padding-bottom: 30px">
+      <img
+        id="downimg1 "
+        src="../../../assets/images/cocoa/VGG16.png "
+        alt="VGG16 "
+      />
+    </div>
+  </section>
+  <hr />
+  <section class="row">
+    <div class="col-md-7 col-sm-12 ">
+      <h5 style="text-align: left">TRANSFER LEARNING</h5>
+      <p style="text-align: left">
+        In a lot of real-world use cases, small-scale data collection can be
+        extremely expensive or sometimes near-impossible (e.g. in medical
+        imaging). Thus, building a classifier from small dataset is a
+        challenging problem, but it is also a realistic one.
+        <br /><br />
+        Deep learning requires the ability to learn features automatically from
+        the data, which is generally only possible when lots of training data is
+        available --especially for problems where the input samples are very
+        high-dimensional, like images. However, convolutional neural networks
+        are by design one of the best models available for most "perceptual"
+        problems (such as image classification), even with very little data to
+        learn from. Moreover, CNN models are highly reusable. You can take an
+        image classification trained on a large-scale dataset then reuse it on a
+        significantly different problem with only minor changes. Specifically,
+        in the case of computer vision, many pre-trained models (usually trained
+        on the ImageNet dataset) are now publicly available for download and can
+        be used to create models out of very little data. For example, a model
+        trained on a large dataset of bird images will contain learned features
+        like edges or horizontal lines that you can transfer to another dataset.
+        <br /><br />
+        Like mentioned earlier, we used the VGG16 architecture, which was
+        pre-trained on the ImageNet dataset. Because the ImageNet dataset
+        contains one class cocoa among its total of 1000 classes, this model
+        already has learned some features that are relevant to our project.
+        <br /><br />
+        We only instantiated the convolutional part of the model i.e. everything
+        up to the fully-connected layers. Then we run the model on our training,
+        validation and test dataset once, recording the output as bottleneck
+        features. Then we trained a small fully-connected model on top of the
+        stored features (for training and validation sets). We stored the
+        features offline rather than adding our fully-connected model directly
+        on top of a frozen convolutional base and running the whole thing
+        because of computational efficiency. Running VGG16 is expensive,
+        especially on a CPU, and we want to only do it once.
+      </p>
+    </div>
+    <div class="col-md-4 col-sm-12 ">
+      <img
+        id="downimg1 "
+        src="../../../assets/images/cocoa/transferLearning.png "
+        alt="transferLearning "
+      />
+    </div>
+  </section>
+  <hr />
+  <section class="row">
+    <div class="col-md-12 col-sm-12 ">
+      <h5 style="text-align: left">DATA AUGMENTATION</h5>
+      <p style="text-align: left">
+        Running the Convolutional Neural Network from scratch requires many
+        images. Unfortunately, our dataset is not consequent enough to provide
+        correct results for our classification (as a matter of fact, a model
+        trained from nothing provides results based on chance – 1 over 2 – not
+        better than 50% accuracy). Even while using transfer learning, the small
+        number of images available (mostly for the sick category) may increase
+        the risk of overfitting for our model. In order to alleviate this issue,
+        data augmentation has been performed on the two datasets. Data
+        augmentation consists in using the set of images we already have and
+        transform them via different techniques (shear, noising, flip, zoom,
+        rescale, etc.) to different images. It has been proven that data
+        augmentation can effectively improve neural network results since the
+        newly created images are not exactly similar to the originals and
+        consequently enlarge the range of diversity in the dataset and thus the
+        learning of the model.
+        <br /><br />
+        For the Sick category, aggressive data augmentation has been applied to
+        the images:
+        <li>Blurring</li>
+        <li>Horizontal flip</li>
+        <li>65 degrees rotation</li>
+        <br />
+        The images generation consequently brings the number of sick pods images
+        to 2,800.
+        <br /><br />
+        For the Healthy category, only one type of data augmentation has been
+        applied in order to get the same number of final images as in the Sick
+        category (around 2,800):
+        <li>Blurring</li>
+      </p>
+    </div>
+    <div class="col-md-12 col-sm-12 ">
+      <img
+        id="downimg1 "
+        src="../../../assets/images/cocoa/dataAugmentation.png "
+        alt="dataAugmentation "
       />
     </div>
   </section>
